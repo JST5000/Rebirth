@@ -3,7 +3,7 @@ using System.Collections;
 
 public class BehaviorAI : MonoBehaviour {
 
-    [Range(10, 100)]
+    [Range(100, 500)]
     public float speed;
 
     public float awarenessRadius;
@@ -11,6 +11,10 @@ public class BehaviorAI : MonoBehaviour {
     private string typeOfCreature;
 
     private GameObject[] nearbyEntities;
+
+    private GameObject firstHostile;
+
+    private GameObject firstFleeFrom;
     
     private GameObject current;
 
@@ -39,38 +43,59 @@ public class BehaviorAI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        bool nowFleeing = false;
+        bool nowHostile = false;
+        int[] tally = new int[2];
         nearbyEntities = GetGameObjectsWithin(awarenessRadius);
         for(int i = 0; i<nearbyEntities.GetLength(0); i++)
         {
             current = nearbyEntities[i];
             if(current.tag == "Alive")
             {
-                AdaptBehavior(current);
-
+                string expected = CheckExpectedBehavior(current);
+                if(Equals(expected, "Hostile"))
+                {
+                    firstHostile = current;
+                }else if(Equals(expected, "Flee"))
+                {
+                    firstFleeFrom = current;
+                    nowFleeing = true;
+                }
             }
-            Act();
         }
+        if(nowFleeing)
+        {
+            behavior = "Flee";
+        } else if(nowHostile)
+        {
+            behavior = "Hostile";
+        } else
+        {
+            behavior = "Idle";
+        }
+        Act();
 
 	}
 
-    void AdaptBehavior(GameObject livingEntity)
+    string CheckExpectedBehavior(GameObject livingEntity)
     {
         if (power >= livingEntity.GetComponent<BehaviorAI>().power)
         {
             if (CanEat(gameObject, livingEntity))
             {
-                behavior = "Hostile";
+                return "Hostile";
             }
         }
         else if(CanEat(livingEntity, gameObject))
         {
-            behavior = "Flee";
+            return "Flee";
         } else
         {
-            behavior = "Idle";
+            return "Idle";
         }
-              
 
+
+        return null;
     }
 
     bool CanEat(GameObject attackingCreature, GameObject other)
@@ -88,7 +113,30 @@ public class BehaviorAI : MonoBehaviour {
 
     void Act()
     {
+        if(Equals(behavior, "Idle"))
+        {
 
+            float angle = Mathf.Atan(Random.Range(-1, 1) / Random.Range(-1, 1));
+            float x = Mathf.Cos(angle);
+            float y = Mathf.Sin(angle);
+            gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
+
+        } else if(Equals(behavior, "Hostile"))
+        {
+            float angle = Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
+                (firstHostile.transform.position.x - gameObject.transform.position.y));
+            float x = Mathf.Cos(angle);
+            float y = Mathf.Sin(angle);
+            gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
+
+        } else if(Equals(behavior, "Flee"))
+        {
+            float angle = -Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
+                (firstHostile.transform.position.x - gameObject.transform.position.y));
+            float x = Mathf.Cos(angle);
+            float y = Mathf.Sin(angle);
+            gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
+        }
     }
 
     GameObject[] GetGameObjectsWithin(float radius)
