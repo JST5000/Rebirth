@@ -27,6 +27,8 @@ public class BehaviorAI : MonoBehaviour {
 
     private string[] typesOfFood;
 
+    private float timeSinceLastPathing = 0;
+
     // Use this for initialization
     void Start () {
         behavior = "Idle";
@@ -114,39 +116,46 @@ public class BehaviorAI : MonoBehaviour {
 
     void Act()
     {
-        if(Equals(behavior, "Idle"))
+        timeSinceLastPathing += Time.deltaTime;
+        if (timeSinceLastPathing > .1)
         {
-            float xRandom = Random.Range(.00001f, 1);
-            float yRandom = Random.Range(.00001f, 1);
-            if (Random.value<.5)
+            if (Equals(behavior, "Idle"))
             {
-                xRandom *= -1;
+                float xRandom = Random.Range(.00001f, 1);
+                float yRandom = Random.Range(.00001f, 1);
+                float angle = Mathf.Atan(xRandom / yRandom);
+                float x = Mathf.Cos(angle);
+                float y = Mathf.Sin(angle);
+                if (Random.value < .5)
+                {
+                    x *= -1;
+                }
+                if (Random.value < .5)
+                {
+                    y *= -1;
+                }
+
+
+                gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
+
             }
-            if(Random.value<.5)
+            else if (Equals(behavior, "Hostile"))
             {
-                yRandom *= -1;
+                float angle = Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
+                    (firstHostile.transform.position.x - gameObject.transform.position.y));
+                float x = Mathf.Cos(angle);
+                float y = Mathf.Sin(angle);
+                gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
+
             }
-            
-            float angle = Mathf.Atan(xRandom/yRandom);
-            float x = Mathf.Cos(angle);
-            float y = Mathf.Sin(angle);
-            gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
-
-        } else if(Equals(behavior, "Hostile"))
-        {
-            float angle = Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
-                (firstHostile.transform.position.x - gameObject.transform.position.y));
-            float x = Mathf.Cos(angle);
-            float y = Mathf.Sin(angle);
-            gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
-
-        } else if(Equals(behavior, "Flee"))
-        {
-            float angle = -Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
-                (firstHostile.transform.position.x - gameObject.transform.position.y));
-            float x = Mathf.Cos(angle);
-            float y = Mathf.Sin(angle);
-            gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
+            else if (Equals(behavior, "Flee"))
+            {
+                float angle = -Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
+                    (firstHostile.transform.position.x - gameObject.transform.position.y));
+                float x = Mathf.Cos(angle);
+                float y = Mathf.Sin(angle);
+                gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
+            }
         }
     }
 
