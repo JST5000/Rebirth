@@ -17,7 +17,7 @@ public class TargetScript : MonoBehaviour {
 
     void OnCollisionEnter2D(Collision2D coll)
     {
-        if (coll.gameObject.name == "Circle" && coll.gameObject.GetComponent<NewBehaviourScript>().isAttacking==true)
+        if (coll.gameObject.name == "Player" && coll.gameObject.GetComponent<PlayerController>().isAttacking==true)
         {
             Debug.Log("Ive been hit");
             health -= 10;

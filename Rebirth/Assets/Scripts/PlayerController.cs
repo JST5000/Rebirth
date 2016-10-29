@@ -1,16 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class NewBehaviourScript : MonoBehaviour {
+public class PlayerController : MonoBehaviour {
     Rigidbody2D rb;
 
-    public float speed = 10.0f;
-    public float strikeForce = 1000.0f;
+    public float speed = 300.0f;
+    public float strikeForce = 3500.0f;
     bool canAttack = true;
     public bool isAttacking = false;
     float attackTime = 0.0f;
     float hitTime = 0.0f;
-    public float attackTimer = 0.5f;
+    public float attackTimer = 0.1f;
 
     void Awake()
     {
