@@ -2,6 +2,12 @@
 using System.Collections;
 
 public class PlayerController : MonoBehaviour {
+
+    public Sprite right;
+    public Sprite left;
+    public Sprite down;
+    public Sprite up;
+
     Rigidbody2D rb;
 
     public float speed = 300.0f;
@@ -49,7 +55,7 @@ public class PlayerController : MonoBehaviour {
         Vector2 direction = new Vector2(hori, vert);
         rb.AddForce(direction * strikeForce);
         attackTime = Time.time;
-        ////canAttack = false;
+
     }
 
     void MoveHorizontal(float input)
@@ -57,6 +63,13 @@ public class PlayerController : MonoBehaviour {
         Vector2 moveVe1 = rb.velocity;
         moveVe1.x = input * speed * Time.deltaTime;
         rb.velocity = moveVe1;
+        if (input > 0)
+        {
+            gameObject.GetComponent<SpriteRenderer>().sprite = right;
+        } else if (input < 0)
+        {
+            gameObject.GetComponent<SpriteRenderer>().sprite = left;
+        }
     }
 
     void MoveVertical(float input)
@@ -64,5 +77,13 @@ public class PlayerController : MonoBehaviour {
         Vector2 moveVe1 = rb.velocity;
         moveVe1.y = input * speed * Time.deltaTime;
         rb.velocity = moveVe1;
+        if (input > 0)
+        {
+            gameObject.GetComponent<SpriteRenderer>().sprite = up;
+        }
+        else if (input < 0)
+        {
+            gameObject.GetComponent<SpriteRenderer>().sprite = down;
+        }
     }
 }
