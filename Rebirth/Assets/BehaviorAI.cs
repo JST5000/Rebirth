@@ -3,7 +3,8 @@ using System.Collections;
 
 public class BehaviorAI : MonoBehaviour {
 
-
+    [Range(10, 100)]
+    public float speed;
 
     public float awarenessRadius;
 
@@ -46,36 +47,48 @@ public class BehaviorAI : MonoBehaviour {
             {
                 AdaptBehavior(current);
 
-
-
-            } else if(Equals(current.tag, "Dead"))
-            {
-
             }
+            Act();
         }
 
 	}
 
     void AdaptBehavior(GameObject livingEntity)
     {
-        if(power >= livingEntity.GetComponent<BehaviorAI>().power
-            && CanEat(livingEntity))
+        if (power >= livingEntity.GetComponent<BehaviorAI>().power)
         {
-            behavior = "Hostile";
+            if (CanEat(gameObject, livingEntity))
+            {
+                behavior = "Hostile";
+            }
         }
+        else if(CanEat(livingEntity, gameObject))
+        {
+            behavior = "Flee";
+        } else
+        {
+            behavior = "Idle";
+        }
+              
 
     }
 
-    bool CanEat(GameObject livingEntity)
+    bool CanEat(GameObject attackingCreature, GameObject other)
     {
-        for(int i = 0; i<typesOfFood.GetLength(0); i++)
+        string[] types = attackingCreature.GetComponent<BehaviorAI>().typesOfFood;
+        for (int i = 0; i<types.GetLength(0); i++)
         {
-            if(Equals(typesOfFood[i], livingEntity.GetComponent<BehaviorAI>().typeOfCreature))
+            if(Equals(types[i], other.GetComponent<BehaviorAI>().typeOfCreature))
             {
                 return true;
             }
         }
         return false;
+    }
+
+    void Act()
+    {
+
     }
 
     GameObject[] GetGameObjectsWithin(float radius)
