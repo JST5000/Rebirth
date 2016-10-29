@@ -9,7 +9,12 @@ public class BehaviorAI : MonoBehaviour {
     [Range(1, 10000)]
     public float awarenessRadius;
 
-    private string typeOfCreature;
+    [Range(0, 1000)]
+    public float power;
+
+    public string typeOfCreature;
+
+    public string[] typesOfFood;
 
     private GameObject[] nearbyEntities;
 
@@ -21,11 +26,8 @@ public class BehaviorAI : MonoBehaviour {
 
     private string behavior;
 
-    private int power;
-
     private int hp;
 
-    private string[] typesOfFood;
 
     private Vector3 direction;
 
@@ -34,9 +36,6 @@ public class BehaviorAI : MonoBehaviour {
     // Use this for initialization
     void Start () {
         behavior = "Idle";
-        typeOfCreature = "Animal";
-        hp = 100;
-        power = 100;
 	}
 
     void initTypesOfFood()
@@ -124,16 +123,20 @@ public class BehaviorAI : MonoBehaviour {
         {
             if (timeSinceLastPathing > resetTime)
                 direction = GetIdlePath();
+            firstFleeFrom = null;
+            firstHostile = null;
         }
         else if (Equals(behavior, "Hostile"))
         {
             if (timeSinceLastPathing > resetTime)
                 direction = GetHostilePath();
+            firstFleeFrom = null;
         }
         else if (Equals(behavior, "Flee"))
         {
             if (timeSinceLastPathing > resetTime)
                 direction = GetFleePath();
+            firstHostile = null;
         }
         gameObject.transform.Translate(direction * speed * Time.deltaTime);
         if (timeSinceLastPathing > 1)
