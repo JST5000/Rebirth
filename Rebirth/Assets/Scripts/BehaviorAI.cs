@@ -3,9 +3,10 @@ using System.Collections;
 
 public class BehaviorAI : MonoBehaviour {
 
-    [Range(100, 500)]
+    [Range(0, 1000)]
     public float speed;
 
+    [Range(1, 10000)]
     public float awarenessRadius;
 
     private string typeOfCreature;
@@ -25,6 +26,10 @@ public class BehaviorAI : MonoBehaviour {
     private int hp;
 
     private string[] typesOfFood;
+
+    private Vector3 direction;
+
+    private float timeSinceLastPathing = 0;
 
     // Use this for initialization
     void Start () {
@@ -113,30 +118,64 @@ public class BehaviorAI : MonoBehaviour {
 
     void Act()
     {
-        if(Equals(behavior, "Idle"))
+        timeSinceLastPathing += Time.deltaTime;
+        float resetTime = 1;
+        if (Equals(behavior, "Idle"))
         {
-
-            float angle = Mathf.Atan(Random.Range(-1, 1) / Random.Range(-1, 1));
-            float x = Mathf.Cos(angle);
-            float y = Mathf.Sin(angle);
-            gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
-
-        } else if(Equals(behavior, "Hostile"))
-        {
-            float angle = Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
-                (firstHostile.transform.position.x - gameObject.transform.position.y));
-            float x = Mathf.Cos(angle);
-            float y = Mathf.Sin(angle);
-            gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
-
-        } else if(Equals(behavior, "Flee"))
-        {
-            float angle = -Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
-                (firstHostile.transform.position.x - gameObject.transform.position.y));
-            float x = Mathf.Cos(angle);
-            float y = Mathf.Sin(angle);
-            gameObject.transform.Translate(new Vector3(x, y) * speed * Time.deltaTime);
+            if (timeSinceLastPathing > resetTime)
+                direction = GetIdlePath();
         }
+        else if (Equals(behavior, "Hostile"))
+        {
+            if (timeSinceLastPathing > resetTime)
+                direction = GetHostilePath();
+        }
+        else if (Equals(behavior, "Flee"))
+        {
+            if (timeSinceLastPathing > resetTime)
+                direction = GetFleePath();
+        }
+        gameObject.transform.Translate(direction * speed * Time.deltaTime);
+        if (timeSinceLastPathing > 1)
+        {
+            timeSinceLastPathing = 0;
+        }
+    }
+
+    Vector3 GetIdlePath()
+    {
+        float xRandom = Random.Range(.00001f, 1);
+        float yRandom = Random.Range(.00001f, 1);
+        float angle = Mathf.Atan(xRandom / yRandom);
+        float x = Mathf.Cos(angle);
+        float y = Mathf.Sin(angle);
+        if (Random.value < .5)
+        {
+            x *= -1;
+        }
+        if (Random.value < .5)
+        {
+            y *= -1;
+        }
+        return new Vector3(x, y);
+    }
+
+    Vector3 GetHostilePath()
+    {
+        float angle = Mathf.Atan((firstHostile.transform.position.y - gameObject.transform.position.y) /
+                (firstHostile.transform.position.x - gameObject.transform.position.y));
+        float x = Mathf.Cos(angle);
+        float y = Mathf.Sin(angle);
+        return new Vector3(x, y);
+    }
+
+    Vector3 GetFleePath()
+    {
+        float angle = -Mathf.Atan((firstFleeFrom.transform.position.y - gameObject.transform.position.y) /
+                (firstFleeFrom.transform.position.x - gameObject.transform.position.y));
+        float x = Mathf.Cos(angle);
+        float y = Mathf.Sin(angle);
+        return new Vector3(x, y);
     }
 
     GameObject[] GetGameObjectsWithin(float radius)
